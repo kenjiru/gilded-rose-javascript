@@ -57,7 +57,7 @@ export class Shop {
         }
 
         if (Shop.isItemOfType(item, ItemType.LEGENDARY) === false) {
-            if (item.sellIn < SELL_IN_VALUE + 1) {
+            if (this.isExpired(item)) {
                 this.decrementQuality(item);
             }
             this.decrementQuality(item);
@@ -67,13 +67,13 @@ export class Shop {
     handleBrie(item) {
         this.incrementQuality(item);
 
-        if (item.sellIn < SELL_IN_VALUE + 1) {
+        if (this.isExpired(item)) {
             this.incrementQuality(item);
         }
     }
 
     handleTicketQuality(item) {
-        if (item.sellIn < SELL_IN_VALUE + 1) {
+        if (this.isExpired(item)) {
             item.quality = MIN_QUALITY;
             return;
         }
@@ -99,6 +99,10 @@ export class Shop {
         if (item.quality > MIN_QUALITY) {
             item.quality = item.quality - QUALITY_INCREMENT;
         }
+    }
+
+    isExpired(item) {
+        return item.sellIn < SELL_IN_VALUE + 1;
     }
 
     getFirstItemOfType(itemType) {
