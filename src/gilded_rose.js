@@ -56,12 +56,25 @@ export class Shop {
             return;
         }
 
+        if (Shop.isItemOfType(item, ItemType.CONJURED)) {
+            this.handleConjured(item);
+            return;
+        }
+
         if (Shop.isItemOfType(item, ItemType.LEGENDARY) === false) {
             if (this.isExpired(item)) {
                 this.decrementQuality(item);
             }
             this.decrementQuality(item);
         }
+    }
+
+    handleConjured(item) {
+        if (this.isExpired(item)) {
+            this.decrementQuality(item, 2);
+        }
+
+        this.decrementQuality(item, 2);
     }
 
     handleBrie(item) {
@@ -95,9 +108,9 @@ export class Shop {
         }
     }
 
-    decrementQuality(item) {
+    decrementQuality(item, power = 1) {
         if (item.quality > MIN_QUALITY) {
-            item.quality = item.quality - QUALITY_INCREMENT;
+            item.quality = item.quality - QUALITY_INCREMENT * power;
         }
     }
 
