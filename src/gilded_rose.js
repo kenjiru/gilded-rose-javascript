@@ -52,34 +52,31 @@ export class Shop {
             return;
         }
 
-        if (item.quality > MIN_QUALITY) {
-            if (Shop.isItemOfType(item, ItemType.LEGENDARY) === false) {
-                item.quality = item.quality - QUALITY_INCREMENT;
-            }
+        if (Shop.isItemOfType(item, ItemType.LEGENDARY) === false) {
+            this.decrementQuality(item);
         }
     }
 
     handleQualityForBrieAndTicket(item) {
-        if (item.quality < MAX_QUALITY) {
-            item.quality = item.quality + QUALITY_INCREMENT;
+        if (Shop.isItemOfType(item, ItemType.AGED_BRIE)) {
+            this.incrementQuality(item);
+            return;
+        }
 
-            if (Shop.isItemOfType(item, ItemType.TICKET)) {
-                this.handleTicketQuality(item);
-            }
+        if (Shop.isItemOfType(item, ItemType.TICKET)) {
+            this.handleTicketQuality(item);
         }
     }
 
     handleTicketQuality(item) {
+        this.incrementQuality(item);
+
         if (item.sellIn <= TICKET_FIRST_SELL_OUT) {
-            if (item.quality < MAX_QUALITY) {
-                item.quality = item.quality + QUALITY_INCREMENT;
-            }
+            this.incrementQuality(item);
         }
 
         if (item.sellIn <= TICKET_SECOND_SELL_OUT) {
-            if (item.quality < MAX_QUALITY) {
-                item.quality = item.quality + QUALITY_INCREMENT;
-            }
+            this.incrementQuality(item);
         }
     }
 
@@ -89,9 +86,7 @@ export class Shop {
         }
 
         if (Shop.isItemOfType(item, ItemType.AGED_BRIE)) {
-            if (item.quality < MAX_QUALITY) {
-                item.quality = item.quality + QUALITY_INCREMENT;
-            }
+            this.incrementQuality(item);
             return;
         }
 
@@ -100,14 +95,24 @@ export class Shop {
 
     handleQualityForNonAgingItems(item) {
         if (Shop.isItemOfType(item, ItemType.TICKET)) {
-            item.quality = item.quality - item.quality;
+            item.quality = MIN_QUALITY;
             return;
         }
 
+        if (Shop.isItemOfType(item, ItemType.LEGENDARY) === false) {
+            this.decrementQuality(item);
+        }
+    }
+
+    incrementQuality(item) {
+        if (item.quality < MAX_QUALITY) {
+            item.quality = item.quality + QUALITY_INCREMENT;
+        }
+    }
+
+    decrementQuality(item) {
         if (item.quality > MIN_QUALITY) {
-            if (Shop.isItemOfType(item, ItemType.LEGENDARY) === false) {
-                item.quality = item.quality - QUALITY_INCREMENT;
-            }
+            item.quality = item.quality - QUALITY_INCREMENT;
         }
     }
 
