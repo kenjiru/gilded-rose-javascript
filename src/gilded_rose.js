@@ -34,7 +34,6 @@ export class Shop {
 
             this.handleQuality(item);
             this.handleSellIn(item);
-            this.handleQualityAfterSellIn(item);
         }
 
         return this.items;
@@ -47,28 +46,38 @@ export class Shop {
     }
 
     handleQuality(item) {
-        if (Shop.isItemOfType(item, ItemType.AGED_BRIE) || Shop.isItemOfType(item, ItemType.TICKET)) {
-            this.handleQualityForBrieAndTicket(item);
-            return;
-        }
-
-        if (Shop.isItemOfType(item, ItemType.LEGENDARY) === false) {
-            this.decrementQuality(item);
-        }
-    }
-
-    handleQualityForBrieAndTicket(item) {
         if (Shop.isItemOfType(item, ItemType.AGED_BRIE)) {
-            this.incrementQuality(item);
+            this.handleBrie(item);
             return;
         }
 
         if (Shop.isItemOfType(item, ItemType.TICKET)) {
             this.handleTicketQuality(item);
+            return;
+        }
+
+        if (Shop.isItemOfType(item, ItemType.LEGENDARY) === false) {
+            if (item.sellIn < SELL_IN_VALUE + 1) {
+                this.decrementQuality(item);
+            }
+            this.decrementQuality(item);
+        }
+    }
+
+    handleBrie(item) {
+        this.incrementQuality(item);
+
+        if (item.sellIn < SELL_IN_VALUE + 1) {
+            this.incrementQuality(item);
         }
     }
 
     handleTicketQuality(item) {
+        if (item.sellIn < SELL_IN_VALUE + 1) {
+            item.quality = MIN_QUALITY;
+            return;
+        }
+
         this.incrementQuality(item);
 
         if (item.sellIn <= TICKET_FIRST_SELL_OUT) {
@@ -77,30 +86,6 @@ export class Shop {
 
         if (item.sellIn <= TICKET_SECOND_SELL_OUT) {
             this.incrementQuality(item);
-        }
-    }
-
-    handleQualityAfterSellIn(item) {
-        if (item.sellIn >= SELL_IN_VALUE) {
-            return;
-        }
-
-        if (Shop.isItemOfType(item, ItemType.AGED_BRIE)) {
-            this.incrementQuality(item);
-            return;
-        }
-
-        this.handleQualityForNonAgingItems(item);
-    }
-
-    handleQualityForNonAgingItems(item) {
-        if (Shop.isItemOfType(item, ItemType.TICKET)) {
-            item.quality = MIN_QUALITY;
-            return;
-        }
-
-        if (Shop.isItemOfType(item, ItemType.LEGENDARY) === false) {
-            this.decrementQuality(item);
         }
     }
 
