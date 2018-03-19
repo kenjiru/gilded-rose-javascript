@@ -1,4 +1,4 @@
-import { Shop, Item } from '../gilded_rose';
+import {Item, Shop} from '../gilded_rose';
 
 const DEFAULT_ITEM_NAME = "DEFAULT_NAME";
 const DEFAULT_ITEM_SELL_IN = 0;
@@ -14,7 +14,9 @@ const MAX_QUALITY = 50;
 const QUALITY_INCREMENT = 1;
 const SELL_IN_INCREMENT = 1;
 
-const MIN_SELL_IN = 0;
+const SELL_IN_DATE = 0;
+
+const AGED_BRIE_INCREMENT_AFTER_SELL_IN = 2;
 
 const BACKSTAGE_PASS_FIRST_DEADLINE = 10;
 const BACKSTAGE_PASS_SECOND_DEADLINE = 5;
@@ -95,7 +97,7 @@ describe("Gilded Rose", function () {
             });
 
             it("after sell in has passed quality decreases twice as fast", () => {
-                const shop = createShopWithItemValues(GENERIC_ITEM_NAME, MIN_SELL_IN, GENERIC_ITEM_QUALITY);
+                const shop = createShopWithItemValues(GENERIC_ITEM_NAME, SELL_IN_DATE, GENERIC_ITEM_QUALITY);
                 shop.updateQuality();
 
                 const firstItem = shop.items[0];
@@ -130,6 +132,22 @@ describe("Gilded Rose", function () {
                 expect(firstItem.quality).toEqual(GENERIC_ITEM_QUALITY + QUALITY_INCREMENT);
             });
 
+            it("increases in quality even after sell in date", () => {
+                const shop = createShopWithItemValues(AGED_BRIE, SELL_IN_DATE, GENERIC_ITEM_QUALITY);
+                shop.updateQuality();
+
+                const firstItem = shop.items[0];
+                expect(firstItem.quality).toEqual(GENERIC_ITEM_QUALITY + AGED_BRIE_INCREMENT_AFTER_SELL_IN);
+            });
+
+            it(`does not exceed the maxim quality of '${MAX_QUALITY}' even after sell in date`, () => {
+                const shop = createShopWithItemValues(AGED_BRIE, SELL_IN_DATE, MAX_QUALITY);
+                shop.updateQuality();
+
+                const firstItem = shop.items[0];
+                expect(firstItem.quality).toEqual(MAX_QUALITY);
+            });
+
             it(`does not exceed the maximum quality of '${MAX_QUALITY}'`, () => {
                 const shop = createShopWithItemValues(AGED_BRIE, GENERIC_ITEM_SELL_IN, MAX_QUALITY);
                 shop.updateQuality();
@@ -146,17 +164,40 @@ describe("Gilded Rose", function () {
 
                 const firstItem = shop.items[0];
                 expect(firstItem.quality).toEqual(GENERIC_ITEM_QUALITY);
-                expect(firstItem.sellIn).toEqual(GENERIC_ITEM_SELL_IN);
+            });
+
+            it("does not decrease the quality even after the sell in date", () => {
+                const shop = createShopWithItemValues(LEGENDARY, SELL_IN_DATE - SELL_IN_INCREMENT, GENERIC_ITEM_QUALITY);
+                shop.updateQuality();
+
+                const firstItem = shop.items[0];
+                expect(firstItem.quality).toEqual(GENERIC_ITEM_QUALITY);
             });
         });
 
         describe(`${BACKSTAGE_PASS}`, () => {
-            it(`increases in value with '${BACKSTAGE_PASS_FIRST_INCREMENT}' when there are '${BACKSTAGE_PASS_FIRST_DEADLINE}' or less`, () => {
-                const shop = createShopWithItemValues(BACKSTAGE_PASS, BACKSTAGE_PASS_FIRST_DEADLINE, GENERIC_ITEM_QUALITY);
+            it(`increases in value with '${QUALITY_INCREMENT}' when there are more than '${BACKSTAGE_PASS_FIRST_DEADLINE}' days left`, () => {
+                const shop = createShopWithItemValues(BACKSTAGE_PASS, BACKSTAGE_PASS_FIRST_DEADLINE + SELL_IN_INCREMENT, GENERIC_ITEM_QUALITY);
                 shop.updateQuality();
 
                 const firstItem = shop.items[0];
-                expect(firstItem.quality).toEqual(GENERIC_ITEM_QUALITY + BACKSTAGE_PASS_FIRST_INCREMENT);
+                expect(firstItem.quality).toEqual(GENERIC_ITEM_QUALITY + QUALITY_INCREMENT);
+            });
+
+            it(`does not increase in value over '${MAX_QUALITY}' when there are '${BACKSTAGE_PASS_FIRST_DEADLINE}' days left or less`, () => {
+                const shop = createShopWithItemValues(BACKSTAGE_PASS, BACKSTAGE_PASS_FIRST_DEADLINE - SELL_IN_INCREMENT, MAX_QUALITY - QUALITY_INCREMENT);
+                shop.updateQuality();
+
+                const firstItem = shop.items[0];
+                expect(firstItem.quality).toEqual(MAX_QUALITY);
+            });
+
+            it(`does not increase in value over '${MAX_QUALITY}' when there are '${BACKSTAGE_PASS_SECOND_DEADLINE}' days left or less`, () => {
+                const shop = createShopWithItemValues(BACKSTAGE_PASS, BACKSTAGE_PASS_SECOND_DEADLINE - SELL_IN_INCREMENT, MAX_QUALITY - QUALITY_INCREMENT);
+                shop.updateQuality();
+
+                const firstItem = shop.items[0];
+                expect(firstItem.quality).toEqual(MAX_QUALITY);
             });
 
             it(`increases in value with '${BACKSTAGE_PASS_SECOND_INCREMENT}' when there are '${BACKSTAGE_PASS_SECOND_DEADLINE}' or less`, () => {
