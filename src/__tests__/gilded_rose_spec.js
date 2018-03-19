@@ -29,6 +29,26 @@ const AGED_BRIE = "Aged Brie";
 const LEGENDARY = "Sulfuras, Hand of Ragnaros";
 const BACKSTAGE_PASS = "Backstage passes to a TAFKAL80ETC concert";
 
+function createShopWithItemValues(name, sellIn, quality) {
+    return new Shop([new Item(name, sellIn, quality)]);
+}
+
+function createShopWithDefaultItem() {
+    return new Shop([createDefaultItem()]);
+}
+
+function createShopWithGenericItem() {
+    return new Shop([createGenericItem()]);
+}
+
+function createGenericItem() {
+    return new Item(GENERIC_ITEM_NAME, GENERIC_ITEM_SELL_IN, GENERIC_ITEM_QUALITY);
+}
+
+function createDefaultItem() {
+    return new Item(DEFAULT_ITEM_NAME, DEFAULT_ITEM_SELL_IN, DEFAULT_ITEM_QUALITY);
+}
+
 describe("Gilded Rose", function () {
 
     describe("Item", () => {
@@ -92,12 +112,12 @@ describe("Gilded Rose", function () {
                 expect(firstItem.quality).toEqual(GENERIC_ITEM_SELL_IN - SELL_IN_INCREMENT);
             });
 
-            it(`does not decrease under the minimum of '${MIN_SELL_IN}'`, () => {
+            it("it can be negative", () => {
                 const shop = createShopWithDefaultItem();
                 shop.updateQuality();
 
                 const firstItem = shop.items[0];
-                expect(firstItem.quality).toEqual(MIN_SELL_IN);
+                expect(firstItem.sellIn).toEqual(-1);
             });
         });
 
@@ -157,23 +177,3 @@ describe("Gilded Rose", function () {
         })
     });
 });
-
-function createShopWithItemValues(name, sellIn, quality) {
-    return new Shop([new Item(name, sellIn, quality)]);
-}
-
-function createShopWithDefaultItem() {
-    return new Shop([createDefaultItem()]);
-}
-
-function createShopWithGenericItem() {
-    return new Shop([createGenericItem()]);
-}
-
-function createGenericItem() {
-    return new Item(GENERIC_ITEM_NAME, GENERIC_ITEM_SELL_IN, GENERIC_ITEM_QUALITY);
-}
-
-function createDefaultItem() {
-    return new Item(DEFAULT_ITEM_NAME, DEFAULT_ITEM_SELL_IN, DEFAULT_ITEM_QUALITY);
-}
